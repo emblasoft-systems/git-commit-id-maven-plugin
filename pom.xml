@@ -160,11 +160,11 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
+            <id>deployment</id>
             <url>https://maven.emblasoft.com/nexus/content/repositories/releases/</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
+            <id>deployment</id>
             <url>https://maven.emblasoft.com/nexus/content/repositories/releases/</url>
         </repository>
     </distributionManagement>
