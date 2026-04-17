@@ -10,7 +10,7 @@
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.9.10.1-SNAPSHOT</version>
+    <version>4.9.10.1</version>
     <name>Git Commit Id Plugin Parent</name>
 
     <developers>
@@ -35,7 +35,7 @@
         <connection>scm:git:${project.url}</connection>
         <developerConnection>scm:git:${project.url}</developerConnection>
         <url>${project.url}</url>
-        <tag>HEAD</tag>
+        <tag>4.9.10.1</tag>
     </scm>
 
     <properties>
