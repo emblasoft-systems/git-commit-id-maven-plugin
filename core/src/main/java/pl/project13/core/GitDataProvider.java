@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package pl.project13.core;
 
 import pl.project13.core.git.GitDescribeConfig;
@@ -149,6 +148,8 @@ public abstract class GitDataProvider implements GitProvider {
       maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_ABBREV, this::getAbbrevCommitId);
       // git.dirty
       maybePut(properties, GitCommitPropertyConstant.DIRTY, () -> Boolean.toString(isDirty()));
+      // git.dirty.string
+      maybePut(properties, GitCommitPropertyConstant.DIRTY_STRING, () -> isDirty() ? gitDescribe.getDirty() : "");
       // git.commit.author.name
       maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_NAME, this::getCommitAuthorName);
       // git.commit.author.email
@@ -169,10 +170,10 @@ public abstract class GitDataProvider implements GitProvider {
       //
       maybePut(properties, GitCommitPropertyConstant.TAGS, this::getTags);
 
-      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_NAME, this::getClosestTagName);
-      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, this::getClosestTagCommitCount);
+      maybePut(properties, GitCommitPropertyConstant.CLOSEST_TAG_NAME, this::getClosestTagName);
+      maybePut(properties, GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, this::getClosestTagCommitCount);
 
-      maybePut(properties,GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, this::getTotalCommitCount);
+      maybePut(properties, GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, this::getTotalCommitCount);
 
       SupplierEx<AheadBehind> aheadBehindSupplier = memoize(this::getAheadBehind);
       maybePut(properties, GitCommitPropertyConstant.LOCAL_BRANCH_AHEAD, () -> aheadBehindSupplier.get().ahead());
@@ -214,21 +215,24 @@ public abstract class GitDataProvider implements GitProvider {
 
   void validateAbbrevLength(int abbrevLength) throws GitCommitIdExecutionException {
     if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new GitCommitIdExecutionException(String.format("Abbreviated commit id length must be between 2 and 40, inclusive! Was [%s]. ", abbrevLength) +
-                                           "Please fix your configuration (the <abbrevLength/> element).");
+      throw new GitCommitIdExecutionException(String.format("Abbreviated commit id length must be between 2 and 40, inclusive! Was [%s]. ", abbrevLength)
+          + "Please fix your configuration (the <abbrevLength/> element).");
     }
   }
 
   /**
-   * If running within Jenkins/Hudson, honor the branch name passed via GIT_BRANCH env var.
-   * This is necessary because Jenkins/Hudson always invoke build in a detached head state.
+   * If running within Jenkins/Hudson, honor the branch name passed via
+   * GIT_BRANCH env var. This is necessary because Jenkins/Hudson always invoke
+   * build in a detached head state.
    *
    * @param env environment settings
-   * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
-   * @throws GitCommitIdExecutionException the branch name could not be determined
+   * @return results of getBranchName() or, if in Jenkins/Hudson, value of
+   * GIT_BRANCH
+   * @throws GitCommitIdExecutionException the branch name could not be
+   * determined
    */
   protected String determineBranchName(@Nonnull Map<String, String> env) throws GitCommitIdExecutionException {
-    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env,log);
+    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env, log);
     if (useBranchNameFromBuildEnvironment && !(buildServerDataProvider instanceof UnknownBuildServerData)) {
       String branchName = buildServerDataProvider.getBuildBranch();
       if (branchName == null || branchName.isEmpty()) {
@@ -250,7 +254,7 @@ public abstract class GitDataProvider implements GitProvider {
   }
 
   protected void maybePut(@Nonnull Properties properties, String key, SupplierEx<String> value)
-          throws GitCommitIdExecutionException {
+      throws GitCommitIdExecutionException {
     String keyWithPrefix = prefixDot + key;
     if (properties.stringPropertyNames().contains(keyWithPrefix)) {
       String propertyValue = properties.getProperty(keyWithPrefix);
@@ -264,6 +268,7 @@ public abstract class GitDataProvider implements GitProvider {
 
   @FunctionalInterface
   public interface SupplierEx<T> {
+
     T get() throws GitCommitIdExecutionException;
   }
 
@@ -280,27 +285,34 @@ public abstract class GitDataProvider implements GitProvider {
   }
 
   /**
-   * Regex to check for SCP-style SSH+GIT connection strings such as 'git@github.com'
+   * Regex to check for SCP-style SSH+GIT connection strings such as
+   * 'git@github.com'
    */
   static final Pattern GIT_SCP_FORMAT = Pattern.compile("^([a-zA-Z0-9_.+-])+@(.*)|^\\[([^\\]])+\\]:(.*)|^file:/{2,3}(.*)");
+
   /**
-   * If the git remote value is a URI and contains a user info component, strip the password from it if it exists.
+   * If the git remote value is a URI and contains a user info component, strip
+   * the password from it if it exists.
    *
-   * Note that this method will return an empty string if any failure occurred, while stripping the password from the
-   * credentials. This merely serves as save-guard to avoid any potential password exposure inside generated properties.
+   * Note that this method will return an empty string if any failure occurred,
+   * while stripping the password from the credentials. This merely serves as
+   * save-guard to avoid any potential password exposure inside generated
+   * properties.
    *
-   * This method further operates on the assumption that a valid URL schema follows the rules outlined in
-   * <a href=https://www.ietf.org/rfc/rfc2396.txt>RFC-2396</a> in section "3.2.2. Server-based Naming Authority"
-   * which declares the following as valid URL schema:
-   *  <pre>
+   * This method further operates on the assumption that a valid URL schema
+   * follows the rules outlined in
+   * <a href=https://www.ietf.org/rfc/rfc2396.txt>RFC-2396</a> in section
+   * "3.2.2. Server-based Naming Authority" which declares the following as
+   * valid URL schema:
+   * <pre>
    *  &lt;userinfo&gt;@&lt;host&gt;:&lt;port&gt;
-   *  </pre>
-   *  The "userinfo" part is declared in the same section allowing the following pattern:
-   *  <pre>
+   * </pre> The "userinfo" part is declared in the same section allowing the
+   * following pattern:
+   * <pre>
    *    userinfo = *( unreserved | escaped | ";" | ":" | "&amp;" | "=" | "+" | "$" | "," )
-   *  </pre>
-   *  The "unreserved" part is declared in section "2.3. Unreserved Characters" as the following:
-   *  <pre>
+   * </pre> The "unreserved" part is declared in section "2.3. Unreserved
+   * Characters" as the following:
+   * <pre>
    *    unreserved  = alphanum | mark
    *    mark = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
    *
@@ -309,13 +321,13 @@ public abstract class GitDataProvider implements GitProvider {
    *    alpha = lowalpha | upalpha
    *    lowalpha = "a" | "b" | "c" | ... | "x" | "y" | "z"
    *    upalpha = "A" | "B" | "C" | ... | "X" | "Y" | "Z"
-   *  </pre>
+   * </pre>
    *
    * @param gitRemoteString The value of the git remote
-   * @return returns the gitRemoteUri with stripped password (might be used in http or https)
+   * @return returns the gitRemoteUri with stripped password (might be used in
+   * http or https)
    * @throws GitCommitIdExecutionException Exception when URI is invalid
    */
-
   protected String stripCredentialsFromOriginUrl(String gitRemoteString) throws GitCommitIdExecutionException {
 
     // The URL might be null if the repo hasn't set a remote
@@ -332,13 +344,13 @@ public abstract class GitDataProvider implements GitProvider {
     // At this point, we should have a properly formatted URL
     try {
 
-      for (String s: Arrays.asList(
-              // escape all 'delims' characters in a URI as per https://www.ietf.org/rfc/rfc2396.txt
-              "<", ">", "#", "%", "\"",
-              // escape all 'unwise' characters in a URI as per https://www.ietf.org/rfc/rfc2396.txt
-              "{", "}", "|", "\\", "^", "[", "]", "`")) {
+      for (String s : Arrays.asList(
+          // escape all 'delims' characters in a URI as per https://www.ietf.org/rfc/rfc2396.txt
+          "<", ">", "#", "%", "\"",
+          // escape all 'unwise' characters in a URI as per https://www.ietf.org/rfc/rfc2396.txt
+          "{", "}", "|", "\\", "^", "[", "]", "`")) {
         gitRemoteString = gitRemoteString.replaceAll(
-                Pattern.quote(s), URLEncoder.encode(s, StandardCharsets.UTF_8.toString()));
+            Pattern.quote(s), URLEncoder.encode(s, StandardCharsets.UTF_8.toString()));
       }
       URI original = new URI(gitRemoteString);
       String userInfoString = original.getUserInfo();
@@ -358,12 +370,12 @@ public abstract class GitDataProvider implements GitProvider {
         }
       }
       return new URI(original.getScheme(),
-              extractedUserInfo,
-              original.getHost(),
-              original.getPort(),
-              original.getPath(),
-              original.getQuery(),
-              original.getFragment()).toString();
+          extractedUserInfo,
+          original.getHost(),
+          original.getPort(),
+          original.getPath(),
+          original.getQuery(),
+          original.getFragment()).toString();
 
     } catch (Exception e) {
       log.error("Something went wrong to strip the credentials from git's remote url (please report this)!", e);

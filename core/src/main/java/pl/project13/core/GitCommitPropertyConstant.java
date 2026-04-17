@@ -23,6 +23,7 @@ public class GitCommitPropertyConstant {
   public static final String LOCAL_BRANCH_AHEAD = "local.branch.ahead";
   public static final String LOCAL_BRANCH_BEHIND = "local.branch.behind";
   public static final String DIRTY = "dirty";
+  public static final String DIRTY_STRING = "dirty.string";
   // only one of the following two will be exposed, depending on the commitIdGenerationMode
   public static final String COMMIT_ID_FLAT = "commit.id";
   public static final String COMMIT_ID_FULL = "commit.id.full";
