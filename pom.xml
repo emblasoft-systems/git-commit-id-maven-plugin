@@ -2,9 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
+        <groupId>com.emblasoft</groupId>
+        <artifactId>emblasoft-pom</artifactId>
+        <version>3.0.10</version>
     </parent>
 
     <groupId>pl.project13.maven</groupId>
