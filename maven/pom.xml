@@ -24,29 +24,16 @@
     <maven>[${maven-plugin-api.version},)</maven>
   </prerequisites>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <!--
-    We should include relocation information, but if we do
-    maven fails with "Could not find artifact io.github.git-commit-id:git-commit-id-maven-plugin:jar:${version}".
-    If we publish a release under the new coordinates, maven silent ignores the plugin settings
-    when we happen to use the old coordinates in our config
-    (https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/571).
-
-    As a result: The plugin is moving to a new location, but we can't encode it in the pom :-(
-    <relocation>
-      <groupId>io.github.git-commit-id</groupId>
-      <artifactId>git-commit-id-maven-plugin</artifactId>
-    </relocation>
-    -->
-  </distributionManagement>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>deployment</id>
+            <url>https://maven.emblasoft.com/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>deployment</id>
+            <url>https://maven.emblasoft.com/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
