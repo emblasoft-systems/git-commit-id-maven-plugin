@@ -12,7 +12,6 @@
     <packaging>pom</packaging>
     <version>4.9.10.0-SNAPSHOT</version>
     <name>Git Commit Id Plugin Parent</name>
-    <url>http://www.blog.project13.pl</url>
 
     <developers>
         <developer>
@@ -31,12 +30,13 @@
         </license>
     </licenses>
 
+    <url>https://github.com/emblasoft-systems/git-commit-id-maven-plugin</url>
     <scm>
-        <url>git@github.com:git-commit-id/git-commit-id-maven-plugin.git</url>
-        <connection>scm:git@github.com:git-commit-id/git-commit-id-maven-plugin</connection>
-        <developerConnection>scm:git:git@github.com:git-commit-id/git-commit-id-maven-plugin.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <connection>scm:git:${project.url}</connection>
+        <developerConnection>scm:git:${project.url}</developerConnection>
+        <url>${project.url}</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
